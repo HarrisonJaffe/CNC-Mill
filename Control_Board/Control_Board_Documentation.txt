@@ -1,0 +1,3 @@
+Official Octopus PRO V1.1 Github Pinout: https://github.com/bigtreetech/BIGTREETECH-OCTOPUS-Pro/blob/master/Hardware/BIGTREETECH%20Octopus%20Pro%20V1.1-Pin.jpg
+Octopus User Guide: https://www.123-3d.nl/pdf/DAR01182_BIGTREETECH_Octopus_EN_updated_0719.pdf 
+Voron Octopus PRO V1.1 Jumper Prep: https://docs.vorondesign.com/build/electrical/v2_octopus_wiring.html 

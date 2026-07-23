@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3-Axis CNC Mill — Wiring Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #080c12; color: #c8d8e8; font-family: 'Share Tech Mono', monospace; overflow-x: auto; }
+  header { background: linear-gradient(135deg, #0d1520 0%, #111e2e 100%); border-bottom: 2px solid #1e3a5f; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+  header h1 { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: #e8f4ff; letter-spacing: 2px; text-transform: uppercase; }
+  header .subtitle { font-size: 11px; color: #5a8ab0; letter-spacing: 1px; margin-top: 4px; }
+  .warning-banner { background: #2a1500; border: 1px solid #cc5500; border-left: 4px solid #ff6600; margin: 16px 24px; padding: 12px 16px; border-radius: 4px; font-size: 12px; color: #ffaa55; display: flex; gap: 12px; align-items: flex-start; }
+  .warning-banner .icon { font-size: 18px; flex-shrink: 0; }
+  .warning-banner ul { padding-left: 16px; margin-top: 4px; }
+  .warning-banner li { margin-top: 3px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 24px; background: #0d1520; border-bottom: 1px solid #1a2d44; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #a0b8cc; }
+  .legend-line { width: 30px; height: 4px; border-radius: 2px; }
+  .diagram-container { padding: 24px; overflow: auto; }
+  svg { display: block; min-width: 1500px; }
+  .notes-section { margin: 0 24px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .note-card { background: #0d1520; border: 1px solid #1a3050; border-radius: 6px; padding: 14px 16px; font-size: 11px; line-height: 1.7; }
+  .note-card h3 { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+  .note-card.power h3 { color: #ff5555; }
+  .note-card.motor h3 { color: #ff9922; }
+  .note-card.sensor h3 { color: #22cc66; }
+  .note-card.spindle h3 { color: #aa44ff; }
+  .note-card.safety h3 { color: #ff6600; }
+  .pin-ref { color: #55aaff; font-weight: bold; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>3-Axis CNC Mill — Complete Wiring Diagram</h1>
+    <div class="subtitle">Octopus Pro V1.1 · TMC2209 ×5 · MEAN WELL LRS-350-24 · Brushless Spindle · REV 2.0</div>
+  </div>
+  <div style="font-size:11px;color:#3a6080;text-align:right;">REV 2.0 &nbsp;|&nbsp; 2026<br>5 MOTORS · 9 ENDSTOPS · DUAL PSU</div>
+</header>
+
+<div class="legend">
+  <div style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;color:#5a8ab0;margin-right:6px;align-self:center;">WIRE COLORS:</div>
+  <div class="legend-item"><div class="legend-line" style="background:#cc3300;"></div> AC Live</div>
+  <div class="legend-item"><div class="legend-line" style="background:#2255cc;"></div> AC Neutral</div>
+  <div class="legend-item"><div class="legend-line" style="background:#88aa00;"></div> AC Earth</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ff3333;"></div> 24V DC+</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ff6633;"></div> 24V MOTOR_PWR</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ffdd00;"></div> 24V Sensor Rail</div>
+  <div class="legend-item"><div class="legend-line" style="background:#aaaaaa;"></div> GND</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ff8800;"></div> Stepper Motor</div>
+  <div class="legend-item"><div class="legend-line" style="background:#22cc55;"></div> Endstop Signal</div>
+  <div class="legend-item"><div class="legend-line" style="background:#00cccc;"></div> Z Probe</div>
+  <div class="legend-item"><div class="legend-line" style="background:#aa44ff;"></div> Spindle PWM</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ff6600;"></div> Spindle ESC Pwr</div>
+</div>
+
+<div class="warning-banner">
+  <span class="icon">⚠️</span>
+  <div>
+    <strong style="color:#ff8800;">IMPORTANT NOTES BEFORE WIRING</strong>
+    <ul>
+      <li><strong>SENSOR VCC:</strong> Endstop headers are 5V only. NPN sensors need 6-36V. Connect Brown wire to 24V rail directly. Leave header VCC pin unconnected.</li>
+      <li><strong>DUAL POWER INPUT:</strong> Octopus Pro has two separate inputs — PWR and MOTOR_POWER. Both must be wired to your MEAN WELL PSU.</li>
+      <li><strong>DIAG JUMPERS:</strong> Remove ALL DIAG jumpers before power-on. Leaving them in causes false endstop triggers.</li>
+      <li><strong>AC MAINS:</strong> E-stop cuts AC Live before both PSUs. Lethal voltage — qualified persons only.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="diagram-container">
+<svg width="1500" height="1740" viewBox="0 0 1500 1740" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="a-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ff3333"/></marker>
+    <marker id="a-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#aaaaaa"/></marker>
+    <marker id="a-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ff8800"/></marker>
+    <marker id="a-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#22cc55"/></marker>
+    <marker id="a-cyan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#00cccc"/></marker>
+    <marker id="a-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#aa44ff"/></marker>
+    <marker id="a-brown" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#cc3300"/></marker>
+    <marker id="a-yellow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ffdd00"/></marker>
+    <marker id="a-mot" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ff6633"/></marker>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0f1820" stroke-width="0.5"/></pattern>
+  </defs>
+  <rect width="1500" height="1740" fill="#080c12"/>
+  <rect width="1500" height="1740" fill="url(#grid)"/>
+
+  <!-- Section labels -->
+  <text x="95" y="30" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#2a5070" letter-spacing="2" text-anchor="middle">AC POWER</text>
+  <text x="360" y="30" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#2a5070" letter-spacing="2" text-anchor="middle">DC / SPINDLE</text>
+  <text x="820" y="30" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#2a5070" letter-spacing="2" text-anchor="middle">OCTOPUS PRO V1.1</text>
+  <text x="1200" y="30" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#2a5070" letter-spacing="2" text-anchor="middle">MOTORS / SENSORS</text>
+  <line x1="190" y1="40" x2="190" y2="1700" stroke="#1a2d44" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="630" y1="40" x2="630" y2="1700" stroke="#1a2d44" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="1020" y1="40" x2="1020" y2="1700" stroke="#1a2d44" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- ═══ AC MAINS ═══ -->
+  <rect x="18" y="55" width="150" height="108" rx="4" fill="#1a1008" stroke="#cc3300" stroke-width="1.5"/>
+  <rect x="18" y="55" width="150" height="22" rx="4" fill="#cc3300"/>
+  <text x="93" y="70" font-family="Rajdhani,sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">AC MAINS IN</text>
+  <text x="93" y="84" font-family="Rajdhani,sans-serif" font-size="9" fill="#ffaa88" text-anchor="middle">120/240VAC</text>
+  <text x="28" y="102" font-family="Share Tech Mono,monospace" font-size="10" fill="#cc5533">● L  LIVE</text>
+  <text x="28" y="118" font-family="Share Tech Mono,monospace" font-size="10" fill="#4477cc">● N  NEUTRAL</text>
+  <text x="28" y="134" font-family="Share Tech Mono,monospace" font-size="10" fill="#88aa00">● PE EARTH</text>
+  <circle cx="168" cy="100" r="3" fill="#cc3300"/>
+  <circle cx="168" cy="116" r="3" fill="#4477cc"/>
+  <circle cx="168" cy="132" r="3" fill="#88aa00"/>
+
+  <!-- ═══ E-STOP ═══ -->
+  <rect x="18" y="210" width="150" height="92" rx="4" fill="#1a0808" stroke="#ff4400" stroke-width="2"/>
+  <rect x="18" y="210" width="150" height="22" rx="4" fill="#ff4400"/>
+  <text x="93" y="225" font-family="Rajdhani,sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">E-STOP</text>
+  <text x="93" y="240" font-family="Rajdhani,sans-serif" font-size="9" fill="#ffcc88" text-anchor="middle">NC MUSHROOM BUTTON</text>
+  <text x="28" y="257" font-family="Share Tech Mono,monospace" font-size="9" fill="#aaaaaa">AC Live IN ← mains</text>
+  <text x="28" y="271" font-family="Share Tech Mono,monospace" font-size="9" fill="#aaaaaa">AC Live OUT → PSUs</text>
+  <text x="28" y="285" font-family="Share Tech Mono,monospace" font-size="9" fill="#ff8855">★ NC = cuts ALL power</text>
+  <circle cx="168" cy="255" r="3" fill="#cc3300"/>
+  <circle cx="168" cy="269" r="3" fill="#cc3300"/>
+  <!-- AC mains live → E-stop -->
+  <polyline points="168,100 182,100 182,255 168,255" fill="none" stroke="#cc3300" stroke-width="2.5"/>
+
+  <!-- ═══ MEAN WELL PSU ═══ -->
+  <rect x="205" y="55" width="205" height="165" rx="4" fill="#0a1a0a" stroke="#ff3333" stroke-width="1.5"/>
+  <rect x="205" y="55" width="205" height="22" rx="4" fill="#cc2222"/>
+  <text x="307" y="70" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">MEAN WELL LRS-350-24</text>
+  <text x="307" y="84" font-family="Rajdhani,sans-serif" font-size="9" fill="#ffaaaa" text-anchor="middle">24V · 14.6A · 350W</text>
+  <text x="214" y="104" font-family="Share Tech Mono,monospace" font-size="9" fill="#cc5533">L ←</text>
+  <text x="214" y="118" font-family="Share Tech Mono,monospace" font-size="9" fill="#4477cc">N ←</text>
+  <text x="214" y="132" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aa00">PE←</text>
+  <text x="280" y="104" font-family="Share Tech Mono,monospace" font-size="9" fill="#ff4444">+24V→ PWR IN</text>
+  <text x="280" y="118" font-family="Share Tech Mono,monospace" font-size="9" fill="#888888">GND → PWR IN</text>
+  <text x="280" y="136" font-family="Share Tech Mono,monospace" font-size="9" fill="#ff6633">+24V→ MOT_PWR</text>
+  <text x="280" y="150" font-family="Share Tech Mono,monospace" font-size="9" fill="#888888">GND → MOT_PWR</text>
+  <text x="280" y="168" font-family="Share Tech Mono,monospace" font-size="9" fill="#ffdd00">+24V→ SENSOR RAIL</text>
+  <text x="280" y="182" font-family="Share Tech Mono,monospace" font-size="9" fill="#888888">GND → shared GND</text>
+  <circle cx="205" cy="102" r="3" fill="#cc3300"/>
+  <circle cx="205" cy="116" r="3" fill="#4477cc"/>
+  <circle cx="205" cy="130" r="3" fill="#88aa00"/>
+  <circle cx="410" cy="102" r="3" fill="#ff3333"/>
+  <circle cx="410" cy="116" r="3" fill="#888888"/>
+  <circle cx="410" cy="134" r="3" fill="#ff6633"/>
+  <circle cx="410" cy="148" r="3" fill="#888888"/>
+  <circle cx="410" cy="166" r="3" fill="#ffdd00"/>
+  <circle cx="410" cy="180" r="3" fill="#888888"/>
+
+  <!-- ═══ SPINDLE PSU ═══ -->
+  <rect x="205" y="265" width="205" height="95" rx="4" fill="#140a1a" stroke="#aa44ff" stroke-width="1.5"/>
+  <rect x="205" y="265" width="205" height="22" rx="4" fill="#7722cc"/>
+  <text x="307" y="280" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">SPINDLE PSU</text>
+  <text x="307" y="294" font-family="Rajdhani,sans-serif" font-size="9" fill="#ddaaff" text-anchor="middle">SEPARATE SUPPLY</text>
+  <text x="214" y="312" font-family="Share Tech Mono,monospace" font-size="9" fill="#cc5533">L ←</text>
+  <text x="214" y="326" font-family="Share Tech Mono,monospace" font-size="9" fill="#4477cc">N ←</text>
+  <text x="214" y="340" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aa00">PE←</text>
+  <text x="310" y="312" font-family="Share Tech Mono,monospace" font-size="9" fill="#ff8800">DC+ →</text>
+  <text x="310" y="326" font-family="Share Tech Mono,monospace" font-size="9" fill="#888888">DC- →</text>
+  <circle cx="205" cy="310" r="3" fill="#cc3300"/>
+  <circle cx="205" cy="324" r="3" fill="#4477cc"/>
+  <circle cx="205" cy="338" r="3" fill="#88aa00"/>
+  <circle cx="410" cy="310" r="3" fill="#ff8800"/>
+  <circle cx="410" cy="324" r="3" fill="#888888"/>
+
+  <!-- AC wires E-stop → PSUs -->
+  <polyline points="168,269 185,269 185,385 198,385 198,102 205,102" fill="none" stroke="#cc3300" stroke-width="2.5" marker-end="url(#a-brown)"/>
+  <circle cx="185" cy="385" r="4" fill="#cc3300"/>
+  <polyline points="185,385 198,385 198,310 205,310" fill="none" stroke="#cc3300" stroke-width="2.5" marker-end="url(#a-brown)"/>
+  <polyline points="168,116 187,116 187,400 198,400 198,116 205,116" fill="none" stroke="#2255cc" stroke-width="2"/>
+  <circle cx="187" cy="400" r="4" fill="#2255cc"/>
+  <polyline points="187,400 198,400 198,324 205,324" fill="none" stroke="#2255cc" stroke-width="2"/>
+  <polyline points="168,132 189,132 189,415 198,415 198,130 205,130" fill="none" stroke="#88aa00" stroke-width="2"/>
+  <circle cx="189" cy="415" r="4" fill="#88aa00"/>
+  <polyline points="189,415 198,415 198,338 205,338" fill="none" stroke="#88aa00" stroke-width="2"/>
+
+  <!-- ═══ SPINDLE ESC ═══ -->
+  <rect x="205" y="400" width="205" height="100" rx="4" fill="#140a1a" stroke="#aa44ff" stroke-width="1.5"/>
+  <rect x="205" y="400" width="205" height="22" rx="4" fill="#6611aa"/>
+  <text x="307" y="415" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">SPINDLE ESC</text>
+  <text x="307" y="429" font-family="Rajdhani,sans-serif" font-size="9" fill="#ddaaff" text-anchor="middle">BRUSHLESS CONTROLLER</text>
+  <text x="214" y="447" font-family="Share Tech Mono,monospace" font-size="9" fill="#ff8800">DC+ ←</text>
+  <text x="214" y="461" font-family="Share Tech Mono,monospace" font-size="9" fill="#888888">DC- ←</text>
+  <text x="214" y="475" font-family="Share Tech Mono,monospace" font-size="9" fill="#aa44ff">PWM SIG ←</text>
+  <text x="214" y="489" font-family="Share Tech Mono,monospace" font-size="9" fill="#888888">SIG GND ←</text>
+  <text x="340" y="461" font-family="Share Tech Mono,monospace" font-size="9" fill="#ffcc00">→ U·V·W</text>
+  <circle cx="205" cy="445" r="3" fill="#ff8800"/>
+  <circle cx="205" cy="459" r="3" fill="#888888"/>
+  <circle cx="205" cy="473" r="3" fill="#aa44ff"/>
+  <circle cx="205" cy="487" r="3" fill="#888888"/>
+  <circle cx="410" cy="459" r="3" fill="#ffcc00"/>
+  <!-- PSU → ESC -->
+  <polyline points="410,310 432,310 432,445 410,445" fill="none" stroke="#ff8800" stroke-width="2.5" marker-end="url(#a-orange)"/>
+  <polyline points="410,324 437,324 437,459 410,459" fill="none" stroke="#888888" stroke-width="2" marker-end="url(#a-gray)"/>
+
+  <!-- ═══ SPINDLE MOTOR ═══ -->
+  <rect x="205" y="548" width="205" height="65" rx="4" fill="#1a1408" stroke="#ffcc00" stroke-width="1.5"/>
+  <rect x="205" y="548" width="205" height="22" rx="4" fill="#aa8800"/>
+  <text x="307" y="563" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">BRUSHLESS SPINDLE</text>
+  <text x="307" y="578" font-family="Rajdhani,sans-serif" font-size="9" fill="#ffeeaa" text-anchor="middle">Daedalus 300W</text>
+  <text x="214" y="596" font-family="Share Tech Mono,monospace" font-size="9" fill="#ffcc00">U·V·W ← from ESC</text>
+  <circle cx="205" cy="594" r="3" fill="#ffcc00"/>
+  <!-- ESC → Motor -->
+  <polyline points="410,459 445,459 445,594 410,594" fill="none" stroke="#ffcc00" stroke-width="3"/>
+  <text x="448" y="528" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffcc00">U·V·W</text>
+
+  <!-- ═══ 24V SENSOR RAIL ═══ -->
+  <rect x="205" y="632" width="205" height="78" rx="4" fill="#1a1500" stroke="#ffdd00" stroke-width="1.5"/>
+  <rect x="205" y="632" width="205" height="22" rx="4" fill="#886600"/>
+  <text x="307" y="647" font-family="Rajdhani,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">24V SENSOR RAIL</text>
+  <text x="214" y="668" font-family="Share Tech Mono,monospace" font-size="9" fill="#ffdd44">+24V tap from PSU V+ terminal</text>
+  <text x="214" y="682" font-family="Share Tech Mono,monospace" font-size="9" fill="#aaaaaa">Feeds BRN wire on all 8 NPN</text>
+  <text x="214" y="696" font-family="Share Tech Mono,monospace" font-size="9" fill="#aaaaaa">proximity sensors. GND shared.</text>
+  <circle cx="410" cy="666" r="3" fill="#ffdd00"/>
+  <!-- PSU → sensor rail -->
+  <polyline points="410,166 452,166 452,666 410,666" fill="none" stroke="#ffdd00" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#a-yellow)"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- OCTOPUS PRO V1.1 BOARD                            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="640" y="55" width="368" height="1600" rx="6" fill="#060e18" stroke="#1e4060" stroke-width="2"/>
+  <rect x="640" y="55" width="368" height="30" rx="6" fill="#0d2a44"/>
+  <text x="824" y="76" font-family="Rajdhani,sans-serif" font-size="13" font-weight="700" fill="#88ccff" text-anchor="middle" letter-spacing="2">BTT OCTOPUS PRO V1.1</text>
+
+  <!-- POWER INPUT -->
+  <rect x="650" y="100" width="348" height="98" rx="3" fill="#0d1a10" stroke="#336633" stroke-width="1"/>
+  <text x="660" y="116" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#44aa44" letter-spacing="1">POWER INPUT — TWO SEPARATE TERMINALS</text>
+  <rect x="660" y="122" width="155" height="62" rx="2" fill="#0a1a0a" stroke="#ff3333" stroke-width="1"/>
+  <text x="737" y="136" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff5555" text-anchor="middle">PWR TERMINAL</text>
+  <text x="737" y="150" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">+24V ← PSU V+</text>
+  <text x="737" y="163" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">GND  ← PSU V-</text>
+  <text x="737" y="176" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644" text-anchor="middle">Board logic power</text>
+  <circle cx="640" cy="143" r="4" fill="#ff3333"/>
+  <circle cx="640" cy="157" r="4" fill="#888888"/>
+  <rect x="825" y="122" width="155" height="62" rx="2" fill="#0a1a0a" stroke="#ff6633" stroke-width="1"/>
+  <text x="902" y="136" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff8855" text-anchor="middle">MOTOR_POWER</text>
+  <text x="902" y="150" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">+24V ← PSU V+</text>
+  <text x="902" y="163" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">GND  ← PSU V-</text>
+  <text x="902" y="176" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644" text-anchor="middle">Driver/motor power</text>
+  <circle cx="640" cy="143" r="0"/>
+
+  <!-- MOTORS SECTION -->
+  <rect x="650" y="212" width="348" height="372" rx="3" fill="#0a100d" stroke="#554400" stroke-width="1"/>
+  <text x="660" y="228" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#aa8833" letter-spacing="1">MOTOR DRIVERS — TMC2209 ×5 (UART MODE)</text>
+  <text x="660" y="240" font-family="Share Tech Mono,monospace" font-size="8" fill="#665533">Single UART jumper per socket · Remove SPI jumpers · Remove DIAG jumpers · MOT_PWR→VIN</text>
+
+  <!-- DRIVER0 X cy=265 -->
+  <rect x="660" y="246" width="328" height="56" rx="2" fill="#0c140a" stroke="#ff8800" stroke-width="1"/>
+  <text x="670" y="260" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff8800">DRIVER0 / MOTOR0 — X AXIS</text>
+  <text x="670" y="273" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Socket DRIVER0 · Connector MOTOR0 · UART pin PC4</text>
+  <text x="670" y="286" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">STEP:PF13 · DIR:PF12 · EN:PF14</text>
+  <text x="670" y="297" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff4444">⚠ X motor not on parts list — needed</text>
+  <circle cx="1008" cy="265" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+
+  <!-- DRIVER1 Y cy=330 -->
+  <rect x="660" y="308" width="328" height="56" rx="2" fill="#0c140a" stroke="#ff8800" stroke-width="1"/>
+  <text x="670" y="322" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff8800">DRIVER1 / MOTOR1 — Y AXIS</text>
+  <text x="670" y="335" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Socket DRIVER1 · Connector MOTOR1 · UART pin PD11</text>
+  <text x="670" y="348" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">STEP:PG0 · DIR:PG1 · EN:PF15</text>
+  <text x="670" y="359" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">NEMA17 with T8 integrated lead screw</text>
+  <circle cx="1008" cy="330" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+
+  <!-- DRIVER2 Z1 cy=395 -->
+  <rect x="660" y="370" width="328" height="56" rx="2" fill="#0c140a" stroke="#ff8800" stroke-width="1"/>
+  <text x="670" y="384" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff8800">DRIVER2 / MOTOR2 — Z1 (LEFT)</text>
+  <text x="670" y="397" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Socket DRIVER2 · Connector MOTOR2 · UART pin PC6</text>
+  <text x="670" y="410" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">STEP:PF11 · DIR:PG3 · EN:PG5</text>
+  <text x="670" y="421" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">NEMA17 with T8 integrated lead screw</text>
+  <circle cx="1008" cy="395" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+
+  <!-- DRIVER3 Z2 cy=460 -->
+  <rect x="660" y="432" width="328" height="56" rx="2" fill="#0c140a" stroke="#ff8800" stroke-width="1"/>
+  <text x="670" y="446" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff8800">DRIVER3 / MOTOR3 — Z2 (RIGHT)</text>
+  <text x="670" y="459" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Socket DRIVER3 · Connector MOTOR3 · UART pin PC7</text>
+  <text x="670" y="472" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">STEP:PG4 · DIR:PC1 · EN:PA2</text>
+  <text x="670" y="483" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff4444">⚠ EN=PA2 on Pro V1.1 — NOT PA0 (standard/Pro V1.0 differ here)</text>
+  <circle cx="1008" cy="460" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+
+  <!-- DRIVER4 EXTRUDER cy=525 -->
+  <rect x="660" y="494" width="328" height="56" rx="2" fill="#0c140a" stroke="#ff8800" stroke-width="1"/>
+  <text x="670" y="508" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#ff8800">DRIVER4 / MOTOR4 — PASTE EXTRUDER</text>
+  <text x="670" y="521" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Socket DRIVER4 · Connector MOTOR4 · UART pin PF2</text>
+  <text x="670" y="534" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">STEP:PF9 · DIR:PF10 · EN:PG2</text>
+  <text x="670" y="545" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">NEMA17 stepper · motor only</text>
+  <circle cx="1008" cy="525" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+
+  <!-- ENDSTOPS SECTION -->
+  <rect x="650" y="598" width="348" height="690" rx="3" fill="#080e10" stroke="#115533" stroke-width="1"/>
+  <text x="660" y="614" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#22aa66" letter-spacing="1">ENDSTOPS · SENSORS · PROBE — PG6 to PG15</text>
+  <text x="660" y="626" font-family="Share Tech Mono,monospace" font-size="8" fill="#336644">Headers: 3-pin (GND·5V·SIG). NPN sensors: connect GND+SIG only. VCC pin UNUSED. Power BRN from 24V rail.</text>
+
+  <!-- PG6 X MIN cy=657 -->
+  <rect x="660" y="632" width="328" height="62" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="646" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG6 — X MIN HOME (STOP_0)</text>
+  <text x="670" y="659" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">GND→GND · 5V PIN UNUSED · SIG→1N4148→PG6</text>
+  <text x="670" y="671" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN wire → 24V sensor rail (not header VCC)</text>
+  <text x="670" y="683" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ ^PG6 if NO · ^!PG6 if NC in Klipper</text>
+  <circle cx="1008" cy="657" r="4" fill="#22cc55"/>
+
+  <!-- PG7 X MAX cy=723 -->
+  <rect x="660" y="700" width="328" height="62" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="714" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG7 — X MAX LIMIT (STOP_1)</text>
+  <text x="670" y="727" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">GND→GND · 5V PIN UNUSED · SIG→1N4148→PG7</text>
+  <text x="670" y="739" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN wire → 24V sensor rail (not header VCC)</text>
+  <text x="670" y="751" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ ^PG7 if NO · ^!PG7 if NC in Klipper</text>
+  <circle cx="1008" cy="723" r="4" fill="#22cc55"/>
+
+  <!-- PG8 Y MIN cy=789 -->
+  <rect x="660" y="768" width="328" height="62" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="782" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG8 — Y MIN HOME (STOP_2)</text>
+  <text x="670" y="795" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">GND→GND · 5V PIN UNUSED · SIG→1N4148→PG8</text>
+  <text x="670" y="807" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN wire → 24V sensor rail (not header VCC)</text>
+  <text x="670" y="819" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ ^PG8 if NO · ^!PG8 if NC in Klipper</text>
+  <circle cx="1008" cy="789" r="4" fill="#22cc55"/>
+
+  <!-- PG9 Y MAX cy=855 -->
+  <rect x="660" y="836" width="328" height="62" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="850" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG9 — Y MAX LIMIT (STOP_3)</text>
+  <text x="670" y="863" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">GND→GND · 5V PIN UNUSED · SIG→1N4148→PG9</text>
+  <text x="670" y="875" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN wire → 24V sensor rail (not header VCC)</text>
+  <text x="670" y="887" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ ^PG9 if NO · ^!PG9 if NC in Klipper</text>
+  <circle cx="1008" cy="855" r="4" fill="#22cc55"/>
+
+  <!-- PG10 Z TOUCH PLATE cy=921 -->
+  <rect x="660" y="904" width="328" height="60" rx="2" fill="#081010" stroke="#00cccc" stroke-width="1"/>
+  <text x="670" y="918" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#00cccc">PG10 — Z TOUCH PLATE (STOP_4)</text>
+  <text x="670" y="931" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">GND→GND · SIG→touch plate signal wire</text>
+  <text x="670" y="943" font-family="Share Tech Mono,monospace" font-size="8" fill="#006666">Metal plate→GND · Bit clip wire→SIG</text>
+  <text x="670" y="955" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">^PG10 pull-up in Klipper probe config · No diode needed</text>
+  <circle cx="1008" cy="921" r="4" fill="#00cccc"/>
+
+  <!-- PG11 SPINDLE UPPER cy=987 -->
+  <rect x="660" y="970" width="328" height="56" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="984" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG11 — SPINDLE UPPER LIMIT (STOP_5)</text>
+  <text x="670" y="997" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · GND→GND · SIG→1N4148→PG11</text>
+  <text x="670" y="1009" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN→24V sensor rail · VCC UNUSED</text>
+  <text x="670" y="1020" font-family="Share Tech Mono,monospace" font-size="8" fill="#558855">1N4148: anode→sensor BLK · cathode→PG11 pin</text>
+  <circle cx="1008" cy="987" r="4" fill="#22cc55"/>
+
+  <!-- PG12 SPINDLE LOWER cy=1053 -->
+  <rect x="660" y="1032" width="328" height="56" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="1046" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG12 — SPINDLE LOWER LIMIT (STOP_6)</text>
+  <text x="670" y="1059" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · GND→GND · SIG→1N4148→PG12</text>
+  <text x="670" y="1071" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN→24V sensor rail · VCC UNUSED</text>
+  <text x="670" y="1082" font-family="Share Tech Mono,monospace" font-size="8" fill="#558855">1N4148: anode→sensor BLK · cathode→PG12 pin</text>
+  <circle cx="1008" cy="1053" r="4" fill="#22cc55"/>
+
+  <!-- PG13 EXTRUDER UPPER cy=1119 -->
+  <rect x="660" y="1094" width="328" height="56" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="1108" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG13 — EXTRUDER UPPER LIMIT (STOP_7)</text>
+  <text x="670" y="1121" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · GND→GND · SIG→1N4148→PG13</text>
+  <text x="670" y="1133" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN→24V sensor rail · VCC UNUSED</text>
+  <text x="670" y="1144" font-family="Share Tech Mono,monospace" font-size="8" fill="#558855">1N4148: anode→sensor BLK · cathode→PG13 pin</text>
+  <circle cx="1008" cy="1119" r="4" fill="#22cc55"/>
+
+  <!-- PG14 EXTRUDER LOWER cy=1185 -->
+  <rect x="660" y="1156" width="328" height="56" rx="2" fill="#080e08" stroke="#22cc55" stroke-width="1"/>
+  <text x="670" y="1170" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600" fill="#22cc55">PG14 — EXTRUDER LOWER LIMIT (STOP_8)</text>
+  <text x="670" y="1183" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · GND→GND · SIG→1N4148→PG14</text>
+  <text x="670" y="1195" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffdd00">BRN→24V sensor rail · VCC UNUSED</text>
+  <text x="670" y="1206" font-family="Share Tech Mono,monospace" font-size="8" fill="#558855">1N4148: anode→sensor BLK · cathode→PG14 pin</text>
+  <circle cx="1008" cy="1185" r="4" fill="#22cc55"/>
+
+  <!-- SPINDLE CONTROL -->
+  <rect x="650" y="1302" width="348" height="80" rx="3" fill="#100814" stroke="#7722cc" stroke-width="1"/>
+  <text x="660" y="1318" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#aa44ff" letter-spacing="1">SPINDLE CONTROL — RELAY + PWM</text>
+  <text x="660" y="1332" font-family="Share Tech Mono,monospace" font-size="8" fill="#aa66ff">PA8 (FAN0) → relay/MOSFET on/off</text>
+  <text x="660" y="1346" font-family="Share Tech Mono,monospace" font-size="8" fill="#aa66ff">PE5 (FAN1) → ESC PWM speed signal</text>
+  <text x="660" y="1360" font-family="Share Tech Mono,monospace" font-size="8" fill="#888">Octopus GND → ESC signal GND (shared reference — required)</text>
+  <text x="660" y="1372" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffaa44">Klipper: [output_pin spindle_relay] pin: PA8 · [output_pin spindle_pwm] pin: PE5 pwm: true</text>
+  <circle cx="640" cy="1332" r="4" fill="#aa44ff"/>
+  <circle cx="640" cy="1346" r="4" fill="#aa44ff"/>
+  <circle cx="640" cy="1360" r="4" fill="#888888"/>
+
+  <!-- UART NOTE -->
+  <rect x="650" y="1382" width="348" height="52" rx="3" fill="#080c10" stroke="#2244aa" stroke-width="1"/>
+  <text x="660" y="1398" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#4466cc" letter-spacing="1">UART — TMC2209</text>
+  <text x="660" y="1412" font-family="Share Tech Mono,monospace" font-size="8" fill="#888">Each driver has its own dedicated UART pin on Octopus Pro V1.1</text>
+  <text x="660" y="1424" font-family="Share Tech Mono,monospace" font-size="8" fill="#888">Single UART jumper per socket only. No MS1/MS2 addressing needed.</text>
+
+  <!-- HOST NOTE -->
+  <rect x="650" y="1448" width="348" height="48" rx="3" fill="#080c10" stroke="#224455" stroke-width="1"/>
+  <text x="660" y="1464" font-family="Rajdhani,sans-serif" font-size="11" font-weight="600" fill="#336688" letter-spacing="1">HOST / RASPBERRY PI</text>
+  <text x="660" y="1478" font-family="Share Tech Mono,monospace" font-size="8" fill="#888">USB-C Octopus Pro → Raspberry Pi · Remove USB-PWR jumper when connected</text>
+  <text x="660" y="1490" font-family="Share Tech Mono,monospace" font-size="8" fill="#888">Or use GPIO UART header — see BTT documentation</text>
+
+  <text x="824" y="1520" font-family="Share Tech Mono,monospace" font-size="8" fill="#1a3a55" text-anchor="middle">─── BTT Octopus Pro V1.1 Board Boundary ───</text>
+
+  <!-- PSU → Board PWR wires -->
+  <polyline points="410,102 455,102 455,46 622,46 622,143 640,143" fill="none" stroke="#ff3333" stroke-width="2.5" marker-end="url(#a-red)"/>
+  <polyline points="410,116 460,116 460,42 626,42 626,157 640,157" fill="none" stroke="#888888" stroke-width="2" marker-end="url(#a-gray)"/>
+  <!-- PSU → MOTOR_POWER -->
+  <polyline points="410,134 450,134 450,50 618,50 618,143 825,143" fill="none" stroke="#ff6633" stroke-width="2.5" marker-end="url(#a-mot)"/>
+  <polyline points="410,148 445,148 445,54 614,54 614,157 825,157" fill="none" stroke="#888888" stroke-width="2" marker-end="url(#a-gray)"/>
+  <!-- Wire labels -->
+  <text x="530" y="38" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff3333">PWR+</text>
+  <text x="530" y="50" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff6633">MOT+</text>
+
+  <!-- PWM → ESC -->
+  <polyline points="640,1332 600,1332 600,473 410,473" fill="none" stroke="#aa44ff" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#a-purple)"/>
+  <polyline points="640,1346 595,1346 595,487 410,487" fill="none" stroke="#888888" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#a-gray)"/>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- RIGHT — MOTORS                 -->
+  <!-- ═══════════════════════════════ -->
+
+  <!-- X Motor cy=265 -->
+  <rect x="1028" y="245" width="215" height="52" rx="4" fill="#0c140a" stroke="#ff8800" stroke-width="1.5"/>
+  <rect x="1028" y="245" width="215" height="18" rx="4" fill="#884400"/>
+  <text x="1135" y="258" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X AXIS MOTOR</text>
+  <text x="1038" y="274" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NEMA17 · 4-wire · MOTOR0</text>
+  <text x="1038" y="287" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff4444">⚠ Not on parts list — needed</text>
+  <circle cx="1028" cy="265" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+  <line x1="1008" y1="265" x2="1028" y2="265" stroke="#ff8800" stroke-width="2.5" marker-end="url(#a-orange)"/>
+  <text x="1010" y="261" font-family="Share Tech Mono,monospace" font-size="7" fill="#ff8800">M0</text>
+
+  <!-- Y Motor cy=330 -->
+  <rect x="1028" y="310" width="215" height="52" rx="4" fill="#0c140a" stroke="#ff8800" stroke-width="1.5"/>
+  <rect x="1028" y="310" width="215" height="18" rx="4" fill="#884400"/>
+  <text x="1135" y="323" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Y AXIS MOTOR</text>
+  <text x="1038" y="339" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NEMA17 · T8 Lead Screw · MOTOR1</text>
+  <text x="1038" y="352" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">4-wire (1A·2A·1B·2B)</text>
+  <circle cx="1028" cy="330" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+  <line x1="1008" y1="330" x2="1028" y2="330" stroke="#ff8800" stroke-width="2.5" marker-end="url(#a-orange)"/>
+  <text x="1010" y="326" font-family="Share Tech Mono,monospace" font-size="7" fill="#ff8800">M1</text>
+
+  <!-- Z1 cy=395 -->
+  <rect x="1028" y="375" width="215" height="52" rx="4" fill="#0c140a" stroke="#ff8800" stroke-width="1.5"/>
+  <rect x="1028" y="375" width="215" height="18" rx="4" fill="#884400"/>
+  <text x="1135" y="388" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Z1 MOTOR (LEFT)</text>
+  <text x="1038" y="404" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NEMA17 · T8 Integrated · MOTOR2</text>
+  <text x="1038" y="417" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">4-wire (1A·2A·1B·2B)</text>
+  <circle cx="1028" cy="395" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+  <line x1="1008" y1="395" x2="1028" y2="395" stroke="#ff8800" stroke-width="2.5" marker-end="url(#a-orange)"/>
+  <text x="1010" y="391" font-family="Share Tech Mono,monospace" font-size="7" fill="#ff8800">M2</text>
+
+  <!-- Z2 cy=460 -->
+  <rect x="1028" y="440" width="215" height="52" rx="4" fill="#0c140a" stroke="#ff8800" stroke-width="1.5"/>
+  <rect x="1028" y="440" width="215" height="18" rx="4" fill="#884400"/>
+  <text x="1135" y="453" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Z2 MOTOR (RIGHT)</text>
+  <text x="1038" y="469" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NEMA17 · T8 Integrated · MOTOR3</text>
+  <text x="1038" y="482" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">4-wire (1A·2A·1B·2B)</text>
+  <circle cx="1028" cy="460" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+  <line x1="1008" y1="460" x2="1028" y2="460" stroke="#ff8800" stroke-width="2.5" marker-end="url(#a-orange)"/>
+  <text x="1010" y="456" font-family="Share Tech Mono,monospace" font-size="7" fill="#ff8800">M3</text>
+
+  <!-- Extruder cy=525 -->
+  <rect x="1028" y="505" width="215" height="52" rx="4" fill="#0c140a" stroke="#ff8800" stroke-width="1.5"/>
+  <rect x="1028" y="505" width="215" height="18" rx="4" fill="#884400"/>
+  <text x="1135" y="518" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">PASTE EXTRUDER MTR</text>
+  <text x="1038" y="534" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NEMA17 · Motor only · MOTOR4</text>
+  <text x="1038" y="547" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">4-wire (1A·2A·1B·2B)</text>
+  <circle cx="1028" cy="525" r="5" fill="#ff8800" stroke="#ffcc88" stroke-width="1"/>
+  <line x1="1008" y1="525" x2="1028" y2="525" stroke="#ff8800" stroke-width="2.5" marker-end="url(#a-orange)"/>
+  <text x="1010" y="521" font-family="Share Tech Mono,monospace" font-size="7" fill="#ff8800">M4</text>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- RIGHT — SENSORS                -->
+  <!-- ═══════════════════════════════ -->
+
+  <!-- X MIN cy=657 -->
+  <rect x="1028" y="630" width="215" height="68" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="630" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="643" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X MIN HOME (PG6)</text>
+  <text x="1038" y="659" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN · BRN→24V rail · BLU→GND</text>
+  <text x="1038" y="671" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="683" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ Confirm NO/NC on arrival</text>
+  <text x="1038" y="693" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Diode: anode→BLK · cathode→pin</text>
+  <circle cx="1028" cy="657" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="657" x2="1028" y2="657" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+  <text x="1010" y="653" font-family="Share Tech Mono,monospace" font-size="7" fill="#22cc55">X-</text>
+
+  <!-- X MAX cy=723 -->
+  <rect x="1028" y="698" width="215" height="68" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="698" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="711" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X MAX LIMIT (PG7)</text>
+  <text x="1038" y="727" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN · BRN→24V rail · BLU→GND</text>
+  <text x="1038" y="739" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="751" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ Confirm NO/NC on arrival</text>
+  <text x="1038" y="761" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Diode: anode→BLK · cathode→pin</text>
+  <circle cx="1028" cy="723" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="723" x2="1028" y2="723" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+  <text x="1010" y="719" font-family="Share Tech Mono,monospace" font-size="7" fill="#22cc55">X+</text>
+
+  <!-- Y MIN cy=789 -->
+  <rect x="1028" y="764" width="215" height="68" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="764" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="777" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Y MIN HOME (PG8)</text>
+  <text x="1038" y="793" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN · BRN→24V rail · BLU→GND</text>
+  <text x="1038" y="805" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="817" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ Confirm NO/NC on arrival</text>
+  <text x="1038" y="827" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Diode: anode→BLK · cathode→pin</text>
+  <circle cx="1028" cy="789" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="789" x2="1028" y2="789" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+  <text x="1010" y="785" font-family="Share Tech Mono,monospace" font-size="7" fill="#22cc55">Y-</text>
+
+  <!-- Y MAX cy=855 -->
+  <rect x="1028" y="830" width="215" height="68" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="830" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="843" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Y MAX LIMIT (PG9)</text>
+  <text x="1038" y="859" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN · BRN→24V rail · BLU→GND</text>
+  <text x="1038" y="871" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="883" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8844">⚠ Confirm NO/NC on arrival</text>
+  <text x="1038" y="893" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Diode: anode→BLK · cathode→pin</text>
+  <circle cx="1028" cy="855" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="855" x2="1028" y2="855" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+  <text x="1010" y="851" font-family="Share Tech Mono,monospace" font-size="7" fill="#22cc55">Y+</text>
+
+  <!-- Z TOUCH PLATE cy=921 -->
+  <rect x="1028" y="896" width="215" height="58" rx="4" fill="#081010" stroke="#00cccc" stroke-width="1.5"/>
+  <rect x="1028" y="896" width="215" height="18" rx="4" fill="#005555"/>
+  <text x="1135" y="909" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Z TOUCH PLATE (PG10)</text>
+  <text x="1038" y="925" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">2-wire passive · PG10 (STOP_4)</text>
+  <text x="1038" y="937" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">Metal plate→GND pin on header</text>
+  <text x="1038" y="949" font-family="Share Tech Mono,monospace" font-size="8" fill="#00cccc">Bit clip wire→SIG pin · No diode</text>
+  <circle cx="1028" cy="921" r="4" fill="#00cccc"/>
+  <line x1="1008" y1="921" x2="1028" y2="921" stroke="#00cccc" stroke-width="2" marker-end="url(#a-cyan)"/>
+
+  <!-- Spindle Upper cy=987 -->
+  <rect x="1028" y="962" width="215" height="56" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="962" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="975" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">SPINDLE UPPER (PG11)</text>
+  <text x="1038" y="991" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · BRN→24V · BLU→GND</text>
+  <text x="1038" y="1003" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="1013" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Z over-travel top — spindle head</text>
+  <circle cx="1028" cy="987" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="987" x2="1028" y2="987" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+
+  <!-- Spindle Lower cy=1053 -->
+  <rect x="1028" y="1028" width="215" height="56" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="1028" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="1041" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">SPINDLE LOWER (PG12)</text>
+  <text x="1038" y="1057" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · BRN→24V · BLU→GND</text>
+  <text x="1038" y="1069" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="1079" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Z over-travel bottom — spindle head</text>
+  <circle cx="1028" cy="1053" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="1053" x2="1028" y2="1053" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+
+  <!-- Extruder Upper cy=1119 -->
+  <rect x="1028" y="1094" width="215" height="56" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="1094" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="1107" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">EXTRUDER UPPER (PG13)</text>
+  <text x="1038" y="1123" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · BRN→24V · BLU→GND</text>
+  <text x="1038" y="1135" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="1145" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Z over-travel top — extruder head</text>
+  <circle cx="1028" cy="1119" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="1119" x2="1028" y2="1119" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+
+  <!-- Extruder Lower cy=1185 -->
+  <rect x="1028" y="1160" width="215" height="56" rx="4" fill="#081208" stroke="#22cc55" stroke-width="1.5"/>
+  <rect x="1028" y="1160" width="215" height="18" rx="4" fill="#115522"/>
+  <text x="1135" y="1173" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">EXTRUDER LOWER (PG14)</text>
+  <text x="1038" y="1189" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">NPN NC · BRN→24V · BLU→GND</text>
+  <text x="1038" y="1201" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">BLK→1N4148→SIG · VCC UNUSED</text>
+  <text x="1038" y="1211" font-family="Share Tech Mono,monospace" font-size="8" fill="#886644">Z over-travel bottom — extruder head</text>
+  <circle cx="1028" cy="1185" r="4" fill="#22cc55"/>
+  <line x1="1008" y1="1185" x2="1028" y2="1185" stroke="#22cc55" stroke-width="2" marker-end="url(#a-green)"/>
+
+  <!-- ═══ JUMPER CHECKLIST ═══ -->
+  <rect x="18" y="740" width="205" height="318" rx="4" fill="#080c10" stroke="#2244aa" stroke-width="1.5"/>
+  <rect x="18" y="740" width="205" height="22" rx="4" fill="#0d2240"/>
+  <text x="120" y="755" font-family="Rajdhani,sans-serif" font-size="12" font-weight="700" fill="#88aacc" text-anchor="middle">JUMPER CHECKLIST</text>
+  <text x="28" y="778" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff5555">── REMOVE ──</text>
+  <text x="28" y="793" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ ALL DIAG jumpers (all sockets)</text>
+  <text x="28" y="807" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ 3 SPI jumpers per driver (×5)</text>
+  <text x="28" y="821" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ USB-PWR jumper (near USB-C)</text>
+  <text x="28" y="843" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55">── INSERT / VERIFY ──</text>
+  <text x="28" y="858" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ 1 UART jumper per driver (×5)</text>
+  <text x="28" y="872" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ MOT_PWR jumper → VIN (×5)</text>
+  <text x="28" y="886" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ Fan voltage select → 24V</text>
+  <text x="28" y="900" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">□ Probe voltage select → 24V</text>
+  <text x="28" y="922" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffaa44">── BOARD LABELS ──</text>
+  <text x="28" y="937" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">Labels are on BOTTOM of board.</text>
+  <text x="28" y="951" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">Photograph before mounting.</text>
+  <text x="28" y="973" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff5555">── REMOVED JUMPERS ──</text>
+  <text x="28" y="988" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">Park on single pin only.</text>
+  <text x="28" y="1002" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">Never bridge two pins or</text>
+  <text x="28" y="1016" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa">store on driver socket pins.</text>
+  <text x="28" y="1038" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffaa44">Zip-lock bag in enclosure</text>
+  <text x="28" y="1052" font-family="Share Tech Mono,monospace" font-size="8" fill="#ffaa44">is the safest storage option.</text>
+
+  <!-- ═══ KLIPPER PIN TABLE ═══ -->
+  <rect x="18" y="1080" width="605" height="370" rx="4" fill="#060c14" stroke="#1a3a5a" stroke-width="1.5"/>
+  <rect x="18" y="1080" width="605" height="24" rx="4" fill="#0d2440"/>
+  <text x="320" y="1097" font-family="Rajdhani,sans-serif" font-size="13" font-weight="700" fill="#88aacc" text-anchor="middle" letter-spacing="2">KLIPPER PIN REFERENCE — Octopus Pro V1.1</text>
+  <rect x="28" y="1110" width="585" height="20" fill="#0d1a2a"/>
+  <text x="105" y="1123" font-family="Share Tech Mono,monospace" font-size="8" fill="#5588aa" text-anchor="middle">FUNCTION</text>
+  <text x="268" y="1123" font-family="Share Tech Mono,monospace" font-size="8" fill="#5588aa" text-anchor="middle">KLIPPER PIN</text>
+  <text x="425" y="1123" font-family="Share Tech Mono,monospace" font-size="8" fill="#5588aa" text-anchor="middle">CONNECTOR</text>
+  <text x="565" y="1123" font-family="Share Tech Mono,monospace" font-size="8" fill="#5588aa" text-anchor="middle">NOTES</text>
+  <line x1="172" y1="1110" x2="172" y2="1440" stroke="#1a3050" stroke-width="1"/>
+  <line x1="335" y1="1110" x2="335" y2="1440" stroke="#1a3050" stroke-width="1"/>
+  <line x1="495" y1="1110" x2="495" y2="1440" stroke="#1a3050" stroke-width="1"/>
+
+  <rect x="28" y="1130" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1141" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8800" text-anchor="middle">X Motor</text>
+  <text x="268" y="1141" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PF13·PF12·PF14</text>
+  <text x="425" y="1141" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">DRIVER0/MOTOR0</text>
+  <text x="565" y="1141" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">STEP·DIR·EN</text>
+
+  <text x="105" y="1158" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8800" text-anchor="middle">Y Motor</text>
+  <text x="268" y="1158" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG9·PD7·PG11</text>
+  <text x="425" y="1158" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">DRIVER1/MOTOR1</text>
+  <text x="565" y="1158" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">STEP·DIR·EN</text>
+
+  <rect x="28" y="1163" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1174" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8800" text-anchor="middle">Z1 Motor</text>
+  <text x="268" y="1174" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PF11·PG3·PG5</text>
+  <text x="425" y="1174" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">DRIVER2/MOTOR2</text>
+  <text x="565" y="1174" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">STEP·DIR·EN</text>
+
+  <text x="105" y="1191" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8800" text-anchor="middle">Z2 Motor</text>
+  <text x="268" y="1191" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG4·PC1·PA2</text>
+  <text x="425" y="1191" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">DRIVER3/MOTOR3</text>
+  <text x="565" y="1191" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">STEP·DIR·EN</text>
+
+  <rect x="28" y="1196" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1207" font-family="Share Tech Mono,monospace" font-size="8" fill="#ff8800" text-anchor="middle">Extruder</text>
+  <text x="268" y="1207" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PF9·PF10·PG2</text>
+  <text x="425" y="1207" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">DRIVER4/MOTOR4</text>
+  <text x="565" y="1207" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">STEP·DIR·EN</text>
+
+  <text x="105" y="1224" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">X Min Home</text>
+  <text x="268" y="1224" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG6</text>
+  <text x="425" y="1224" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_0 · GND+SIG only</text>
+  <text x="565" y="1224" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">^PG6 or ^!PG6</text>
+
+  <rect x="28" y="1229" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1240" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">X Max Limit</text>
+  <text x="268" y="1240" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG7</text>
+  <text x="425" y="1240" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_1 · GND+SIG only</text>
+  <text x="565" y="1240" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">^PG7 or ^!PG7</text>
+
+  <text x="105" y="1257" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">Y Min Home</text>
+  <text x="268" y="1257" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG8</text>
+  <text x="425" y="1257" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_2 · GND+SIG only</text>
+  <text x="565" y="1257" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">^PG8 or ^!PG8</text>
+
+  <rect x="28" y="1262" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1273" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">Y Max Limit</text>
+  <text x="268" y="1273" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG9</text>
+  <text x="425" y="1273" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_3 · GND+SIG only</text>
+  <text x="565" y="1273" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">^PG9 or ^!PG9</text>
+
+  <text x="105" y="1290" font-family="Share Tech Mono,monospace" font-size="8" fill="#00cccc" text-anchor="middle">Z Touch Plate</text>
+  <text x="268" y="1290" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG10</text>
+  <text x="425" y="1290" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_4 · GND+SIG only</text>
+  <text x="565" y="1290" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">^PG10 pull-up</text>
+
+  <rect x="28" y="1295" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1306" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">Spindle Up</text>
+  <text x="268" y="1306" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG11</text>
+  <text x="425" y="1306" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_5 · +1N4148</text>
+  <text x="565" y="1306" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">24V rail power</text>
+
+  <text x="105" y="1323" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">Spindle Lo</text>
+  <text x="268" y="1323" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG12</text>
+  <text x="425" y="1323" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_6 · +1N4148</text>
+  <text x="565" y="1323" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">24V rail power</text>
+
+  <rect x="28" y="1328" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1339" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">Extruder Up</text>
+  <text x="268" y="1339" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG13</text>
+  <text x="425" y="1339" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_7 · +1N4148</text>
+  <text x="565" y="1339" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">24V rail power</text>
+
+  <text x="105" y="1356" font-family="Share Tech Mono,monospace" font-size="8" fill="#22cc55" text-anchor="middle">Extruder Lo</text>
+  <text x="268" y="1356" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PG14</text>
+  <text x="425" y="1356" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">STOP_8 · +1N4148</text>
+  <text x="565" y="1356" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">24V rail power</text>
+
+  <rect x="28" y="1361" width="585" height="16" fill="#0a1520" opacity="0.6"/>
+  <text x="105" y="1372" font-family="Share Tech Mono,monospace" font-size="8" fill="#aa44ff" text-anchor="middle">Spindle Relay</text>
+  <text x="268" y="1372" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PA8</text>
+  <text x="425" y="1372" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">FAN0 header</text>
+  <text x="565" y="1372" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">→ relay/MOSFET on/off</text>
+
+  <text x="105" y="1389" font-family="Share Tech Mono,monospace" font-size="8" fill="#aa44ff" text-anchor="middle">Spindle PWM</text>
+  <text x="268" y="1389" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">PE5</text>
+  <text x="425" y="1389" font-family="Share Tech Mono,monospace" font-size="8" fill="#aaa" text-anchor="middle">FAN1 header</text>
+  <text x="565" y="1389" font-family="Share Tech Mono,monospace" font-size="8" fill="#666" text-anchor="middle">→ ESC speed signal</text>
+
+  <text x="320" y="1435" font-family="Share Tech Mono,monospace" font-size="7" fill="#334455" text-anchor="middle">Verify all pins against BTT Octopus Pro V1.1 official pinout before wiring · github.com/bigtreetech/BIGTREETECH-OCTOPUS-Pro</text>
+
+  <!-- Footer -->
+  <rect x="0" y="1715" width="1500" height="25" fill="#060c14"/>
+  <text x="750" y="1731" font-family="Share Tech Mono,monospace" font-size="9" fill="#1a3a55" text-anchor="middle">3-AXIS CNC MILL · WIRING DIAGRAM REV 2.0 · VERIFY ALL CONNECTIONS BEFORE POWERING ON · AC MAINS IS LETHAL</text>
+</svg>
+</div>
+
+<div class="notes-section">
+  <div class="note-card safety">
+    <h3>⚡ E-Stop — AC Mains</h3>
+    The NC mushroom button is in series with the AC Live wire before both PSUs. Pressing it kills all power simultaneously. Wire order: Wall Live → E-stop IN → E-stop OUT → junction → both PSU L terminals. Neutral and Earth bypass the E-stop directly. <strong style="color:#ff4444">AC mains is lethal. Only qualified persons should make these connections.</strong>
+  </div>
+  <div class="note-card power">
+    <h3>🔴 Dual Power Input — Critical</h3>
+    The Octopus Pro V1.1 has two separate terminal blocks: <span class="pin-ref">PWR</span> (board logic) and <span class="pin-ref">MOTOR_POWER</span> (driver power). Both must be wired to your MEAN WELL PSU — run two separate pairs of wires from the PSU terminal block. Set each driver socket's motor power jumper to VIN so it routes from the MOTOR_POWER terminal.
+  </div>
+  <div class="note-card sensor">
+    <h3>🟡 NPN Sensor Power — Critical</h3>
+    Endstop headers (PG6–PG15) supply 5V only. Your NPN sensors need 6–36V. <strong style="color:#ffdd00">Leave the VCC pin on every endstop header unconnected.</strong> Connect each sensor's Brown wire directly to the 24V rail. Blue wire to GND. Black signal wire through a 1N4148 diode (anode→sensor, cathode→header SIG pin) to the endstop signal pin. The board's internal pull-up handles the rest.
+  </div>
+  <div class="note-card motor">
+    <h3>🟠 TMC2209 Installation</h3>
+    Check orientation against board silkscreen notch before pressing drivers in. Stick heatsink on chip first. Insert only the single UART jumper per socket — remove the other three SPI jumpers entirely. Remove ALL DIAG jumpers across the board. Each driver has its own dedicated UART pin on the Octopus Pro — no MS1/MS2 addressing jumpers needed unlike the standard Octopus.
+  </div>
+  <div class="note-card spindle">
+    <h3>🟣 Spindle ESC &amp; PWM</h3>
+    Spindle runs off its own PSU and ESC. The Octopus provides two signals: an on/off relay via <span class="pin-ref">PA8 (FAN0)</span> and a PWM speed signal via <span class="pin-ref">PE5 (FAN1)</span>. You must connect Octopus GND to ESC signal GND — this shared reference is required for the PWM signal to work. Without it the ESC won't respond correctly even though the PWM is present.
+  </div>
+  <div class="note-card safety">
+    <h3>⚠️ Before First Power-On</h3>
+    Complete jumper checklist before applying any power. Do not connect motors or loads until Klipper firmware is flashed and confirmed. Board connector labels are on the bottom — photograph it before mounting. Verify NO vs NC on your proximity sensors when they arrive and update Klipper endstop_pin accordingly. Order an X-axis stepper motor if not already done.
+  </div>
+</div>
+</body>
+</html>
